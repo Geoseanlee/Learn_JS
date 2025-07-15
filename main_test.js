@@ -1,56 +1,39 @@
 import { describe, it, assert, withSubmit } from "./unit_test.js";
-import { mergeTemplates } from "./main.js";
+import { calculateCampaignMetrics } from "./main.js";
 
-describe("mergeTemplates", () => {
+describe("calculateCampaignMetrics", () => {
     const runCases = [
         {
-            defaultTemplates: {
-                welcome: "Welcome to Textio! Start sending messages today.",
-                support: "Need help? Contact our support team.",
-            },
-            customTemplates: {
-                promo: "Limited time offer! Sign up now.",
-                support: "Reach out to us for exclusive deals.",
-            },
+            sent: 1000,
+            opened: 800,
+            clicked: 200,
             expected: {
-                welcome: "Welcome to Textio! Start sending messages today.",
-                support: "Reach out to us for exclusive deals.",
-                promo: "Limited time offer! Sign up now.",
+                openRate: 0.8,
+                clickRate: 0.2,
+                conversionRate: 0.25,
             },
         },
         {
-            defaultTemplates: {
-                onboarding: "Here’s how to get started with Textio.",
-            },
-            customTemplates: {
-                promo: "Limited time offer! Sign up now.",
-            },
+            sent: 500,
+            opened: 400,
+            clicked: 100,
             expected: {
-                onboarding: "Here’s how to get started with Textio.",
-                promo: "Limited time offer! Sign up now.",
+                openRate: 0.8,
+                clickRate: 0.2,
+                conversionRate: 0.25,
             },
         },
     ];
 
     const submitCases = runCases.concat([
         {
-            defaultTemplates: {
-                welcome: "Welcome to Textio! Start sending messages today.",
-            },
-            customTemplates: {
-                welcome: "Welcome back to Textio!",
-            },
+            sent: 2000,
+            opened: 1500,
+            clicked: 500,
             expected: {
-                welcome: "Welcome back to Textio!",
-            },
-        },
-        {
-            defaultTemplates: {},
-            customTemplates: {
-                promo: "Limited time offer! Sign up now.",
-            },
-            expected: {
-                promo: "Limited time offer! Sign up now.",
+                openRate: 0.75,
+                clickRate: 0.25,
+                conversionRate: 0.3333333333333333,
             },
         },
     ]);
@@ -60,9 +43,9 @@ describe("mergeTemplates", () => {
         testCases = submitCases;
     }
 
-    testCases.forEach(({ defaultTemplates, customTemplates, expected }, i) => {
+    testCases.forEach(({ sent, opened, clicked, expected }, i) => {
         it(`Test ${i}`, () => {
-            const result = mergeTemplates(defaultTemplates, customTemplates);
+            const result = calculateCampaignMetrics(sent, opened, clicked);
             for (const prop of Object.keys(expected)) {
                 assert.strictEqual(
                     result[prop],
